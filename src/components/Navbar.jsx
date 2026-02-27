@@ -26,7 +26,7 @@ const Navbar = () => {
     <div className="pb-8 fixed  w-full z-40">
       <Animated direction={"vertical"} distance={0} reverse={true} scale={0}>
         <nav className="bg-gradient-to-r border-b-4 border-orange-400 from-[#2f0000] via-[#9e0f0f] to-[#2f0000] text-white shadow-md fixed w-full z-40">
-          <div className="max-w-7xl mx-auto lg:px-14 py-3 flex justify-between items-center">
+          <div className=" lg:px-14 md:px-10 py-3 flex justify-between items-center">
             {/* Logo */}
             <div
               onClick={() => navigate("/")}
