@@ -17,7 +17,7 @@ const App = () => {
     window.scrollTo(0, 0);
   }, []);
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen w-full overflow-x-hidden">
       <Helmet>
         <title>E-PPID Kabupaten Sekadau - Beranda</title>
         <meta
@@ -31,7 +31,7 @@ const App = () => {
 
       {/* Main Content */}
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow w-full">
         <div className="  pt-10">
           <Menu />
           <div className="my-20">

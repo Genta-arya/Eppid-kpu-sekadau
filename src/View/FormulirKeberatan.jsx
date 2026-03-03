@@ -5,13 +5,18 @@ import Navigation from "../components/Navigation";
 import { toast } from "sonner";
 import { AnimatePresence } from "framer-motion";
 import ModalButuhBantuan from "../components/ModalButuhBantuan";
+import { PostForm } from "../Service/Api/Form.api";
+import { PostToDrive } from "../Service/Api/GoogleDrive.api";
+import Loading from "../components/Loading";
+import { useNavigate } from "react-router-dom";
 
 const FormulirKeberatan = () => {
   const [agree, setAgree] = useState(false);
   const [saveIdentity, setSaveIdentity] = useState(false);
-    const [modalHelpOpen, setModalHelpOpen] = useState(false);
+  const [modalHelpOpen, setModalHelpOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const formRef = useRef(null);
-
+const navigate = useNavigate();
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -31,47 +36,168 @@ const FormulirKeberatan = () => {
     }
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const form = formRef.current;
     const formData = new FormData(form);
+    setLoading(true);
 
-    const email = formData.get("email");
+    try {
+      const email = formData.get("email");
 
-    // 🔴 1. Cek field kosong dulu
-    const requiredFields = form.querySelectorAll("[required]");
-    for (let field of requiredFields) {
-      if (!field.value) {
-        field.scrollIntoView({ behavior: "smooth", block: "center" });
-        field.focus();
-        toast.error("Mohon lengkapi semua field yang wajib diisi.");
+      // 🔴 VALIDASI REQUIRED
+      const requiredFields = form.querySelectorAll("[required]");
+      for (let field of requiredFields) {
+        if (!field.value) {
+          field.scrollIntoView({ behavior: "smooth", block: "center" });
+          field.focus();
+          toast.error("Mohon lengkapi semua field yang wajib diisi.");
+          return;
+        }
+      }
+      // 🔥 VALIDASI RADIO JENIS PEMOHON
+      if (!formData.get("jenisPemohon")) {
+        toast.error("Pilih jenis pemohon terlebih dahulu.");
         return;
       }
+
+      // 🔥 VALIDASI RADIO IDENTITAS
+      if (!formData.get("identitas")) {
+        toast.error("Pilih jenis identitas terlebih dahulu.");
+        return;
+      }
+
+      // 🔴 VALIDASI EMAIL
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        toast.error("Format email tidak valid.");
+        return;
+      }
+
+      if (!agree) {
+        toast.error("Silakan centang pernyataan terlebih dahulu.");
+        return;
+      }
+
+      let dokumenUrl = null;
+      let dokumenName = null;
+
+      const file = formData.get("dokumen");
+
+      if (file && file.size > 0) {
+        const maxSize = 5 * 1024 * 1024;
+
+        if (file.size > maxSize) {
+          toast.error("Ukuran file maksimal 5MB.");
+          return;
+        }
+
+        const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+
+        if (!allowedTypes.includes(file.type)) {
+          toast.error("Format file harus PDF, JPG, atau PNG.");
+          return;
+        }
+
+        const reader = new FileReader();
+
+        const base64File = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result.split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        // 🔥 Upload ke Google Drive dari frontend
+        const uploadResponse = await PostToDrive({
+          fileName: file.name,
+          fileData: base64File,
+        });
+
+        if (uploadResponse.status !== "success") {
+          toast.error("Upload file gagal.");
+          return;
+        }
+
+        dokumenUrl = uploadResponse.fileUrl;
+        dokumenName = file.name;
+      }
+
+      // 🔥 Simpan identitas (optional)
+      if (saveIdentity) {
+        const identityData = {
+          nama: formData.get("nama"),
+          email: formData.get("email"),
+          telepon: formData.get("telepon"),
+          pendidikan: formData.get("pendidikan"),
+          pekerjaan: formData.get("pekerjaan"),
+          alamat: formData.get("alamat"),
+        };
+        localStorage.setItem("formIdentity", JSON.stringify(identityData));
+      } else {
+        localStorage.removeItem("formIdentity");
+      }
+
+      // 🔥 Payload ke backend
+      const payload = {
+        type: "KEBERATAN",
+        jenisPemohon: formData.get("jenisPemohon"),
+        nama: formData.get("nama"),
+        email: formData.get("email"),
+        telepon: formData.get("telepon"),
+        pendidikan: formData.get("pendidikan"),
+        pekerjaan: formData.get("pekerjaan"),
+        alamat: formData.get("alamat"),
+        jenisIdentitas: formData.get("identitas"),
+        nomorIdentitas: formData.get("nomorIdentitas"),
+        rincianInformasi: formData.get("rincianInformasi"),
+        tujuanPenggunaan: formData.get("tujuanPenggunaan"),
+        dokumenUrl,
+        deviceId: localStorage.getItem("device_data")
+          ? JSON.parse(localStorage.getItem("device_data")).deviceId
+          : null,
+        dokumenName,
+        agree,
+      };
+
+      const response = await PostForm(payload);
+
+      toast.success(
+        `Form berhasil dikirim 🚀\nNomor Tiket: ${response.data.ticketNumber}`,
+      );
+
+      navigate(`/status/ticket?id=${response.data.ticketNumber}`);
+      form.reset();
+      setAgree(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Gagal mengirim form. Silakan coba lagi.");
+    } finally {
+      setLoading(false);
     }
-
-    // 🔴 2. Validasi format email manual
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(email)) {
-      const emailInput = form.querySelector("input[name='email']");
-      emailInput.scrollIntoView({ behavior: "smooth", block: "center" });
-      emailInput.focus();
-      toast.error("Format email tidak valid.");
-      return;
-    }
-
-    // 🔴 3. Cek checkbox pernyataan
-    if (!agree) {
-      const checkbox = document.getElementById("pernyataan");
-      checkbox.scrollIntoView({ behavior: "smooth", block: "center" });
-      checkbox.focus();
-      toast.error("Silakan centang pernyataan terlebih dahulu.");
-      return;
-    }
-
-    toast.success("Form berhasil dikirim 🚀");
   };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+
+    if (file.size > maxSize) {
+      toast.error("Ukuran file maksimal 5MB.");
+      e.target.value = ""; // reset file input
+      return;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Format file harus PDF, JPG, atau PNG.");
+      e.target.value = "";
+      return;
+    }
+  };
+
+  if (loading) return <Loading />;
 
   return (
     <>
@@ -102,13 +228,27 @@ const FormulirKeberatan = () => {
               <label className="font-semibold block mb-2">Jenis Pemohon</label>
               <div className="flex lg:flex-row flex-col gap-6 lg:items-center text-sm">
                 <label>
-                  <input type="radio" name="jenisPemohon" required /> Perorangan
+                  <input
+                    type="radio"
+                    name="jenisPemohon"
+                    value="PERORANGAN"
+                    required
+                  />
+                  Perorangan
                 </label>
+
                 <label>
-                  <input type="radio" name="jenisPemohon" /> Kelompok Orang
+                  <input
+                    type="radio"
+                    name="jenisPemohon"
+                    value="KELOMPOK_ORANG"
+                  />
+                  Kelompok Orang
                 </label>
+
                 <label>
-                  <input type="radio" name="jenisPemohon" /> Badan Hukum
+                  <input type="radio" name="jenisPemohon" value="BADAN_HUKUM" />
+                  Badan Hukum
                 </label>
               </div>
             </div>
@@ -166,18 +306,25 @@ const FormulirKeberatan = () => {
                 Jenis Identitas
               </label>
 
-              <div className="grid md:grid-cols-2 gap-2 text-sm">
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <label>
-                  <input type="radio" name="identitas" required /> KTP
+                  <input type="radio" name="identitas" value="KTP" required />
+                  KTP
                 </label>
+
                 <label>
-                  <input type="radio" name="identitas" /> SIM
+                  <input type="radio" name="identitas" value="SIM" />
+                  SIM
                 </label>
+
                 <label>
-                  <input type="radio" name="identitas" /> Paspor
+                  <input type="radio" name="identitas" value="PASPOR" />
+                  Paspor
                 </label>
+
                 <label>
-                  <input type="radio" name="identitas" /> Surat Kuasa
+                  <input type="radio" name="identitas" value="SURAT_KUASA" />
+                  Surat Kuasa
                 </label>
               </div>
 
@@ -189,17 +336,18 @@ const FormulirKeberatan = () => {
                 required
               />
             </div>
-
             <textarea
-              placeholder="Rincian Informasi Yang Dibutuhkan"
+              name="rincianInformasi"
               className="input mb-4"
+              placeholder="Rincian Informasi yang Diberatkan"
               rows="3"
               required
             />
 
             <textarea
-              placeholder="Tujuan Penggunaan Informasi"
+              name="tujuanPenggunaan"
               className="input mb-6"
+              placeholder="Tujuan Penggunaan"
               rows="3"
               required
             />
@@ -209,7 +357,15 @@ const FormulirKeberatan = () => {
                 Upload Dokumen Pelengkap Permohonan{" "}
                 <span className="text-red-500">(opsional)</span>
               </label>
-              <input type="file" />
+              <p className="mb-4 text-xs font-bold">
+                Format: PDF, JPG, JPEG, PNG | Maksimal: 5MB
+              </p>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                name="dokumen"
+                onChange={handleFileChange}
+              />
             </div>
 
             {/* Simpan Identitas */}
@@ -245,7 +401,10 @@ const FormulirKeberatan = () => {
               >
                 Simpan
               </button>
-              <div onClick={() => setModalHelpOpen(true)} className="text-center mt-4 text-xs hover:underline font-semibold cursor-pointer">
+              <div
+                onClick={() => setModalHelpOpen(true)}
+                className="text-center mt-4 text-xs hover:underline font-semibold cursor-pointer"
+              >
                 Butuh bantuan?
               </div>
             </div>
@@ -269,7 +428,7 @@ const FormulirKeberatan = () => {
           </style>
         </section>
       </Container>
-         <AnimatePresence>
+      <AnimatePresence>
         {modalHelpOpen && (
           <ModalButuhBantuan
             key="modal-help"

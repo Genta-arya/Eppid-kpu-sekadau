@@ -4,7 +4,8 @@ import FormulirKeberatan from "./View/FormulirKeberatan";
 import App from "./App";
 import FormulirPermohonanInformasi from "./View/FormulirPermohonanInformasi";
 import ProtectedRoute from "./components/ProtectedRoutes";
-
+import SubmitComplete from "./components/SubmitComplete";
+import CekStatusPengajuan from "./components/CekStatusPengajuan";
 
 const AppRoutes = () => {
   return (
@@ -17,6 +18,8 @@ const AppRoutes = () => {
             path="/formulir-informasi"
             element={<FormulirPermohonanInformasi />}
           />
+          <Route path="/ticket" element={<CekStatusPengajuan />} />
+          <Route path="/status/ticket" element={<SubmitComplete />} />
         </Routes>
       </ProtectedRoute>
     </BrowserRouter>

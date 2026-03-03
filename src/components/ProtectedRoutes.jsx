@@ -1,41 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
-import LocationModal from "./LocationModal";
+import { PostAnalytic } from "../Service/Api/Analytic.api";
+
+const TWO_HOURS = 2 * 60 * 60 * 1000;
 
 const ProtectedRoute = ({ children }) => {
-  const [permission, setPermission] = useState(null);
-
-  // ✅ Generate / ambil device_id
-  const getDeviceId = () => {
-    let deviceId = localStorage.getItem("device_id");
-
-    if (!deviceId) {
-      deviceId = uuidv4();
-      localStorage.setItem("device_id", deviceId);
-    }
-
-    return deviceId;
-  };
-
-  const checkPermission = async () => {
-    if (!navigator.permissions) {
-      setPermission("prompt");
-      return;
-    }
+  const isSessionActive = () => {
+    const storedData = localStorage.getItem("device_data");
+    if (!storedData) return false;
 
     try {
-      const result = await navigator.permissions.query({
-        name: "geolocation",
-      });
-
-      setPermission(result.state);
-
-      result.onchange = () => {
-        setPermission(result.state);
-      };
-    } catch (err) {
-      setPermission("prompt");
+      const parsed = JSON.parse(storedData);
+      const now = Date.now();
+      return now - parsed.createdAt < TWO_HOURS;
+    } catch {
+      return false;
     }
+  };
+
+  const createNewSession = () => {
+    const newDeviceId = uuidv4();
+
+    localStorage.setItem(
+      "device_data",
+      JSON.stringify({
+        deviceId: newDeviceId,
+        createdAt: Date.now(),
+      }),
+    );
+
+    return newDeviceId;
   };
 
   const getIPAddress = async () => {
@@ -43,59 +37,47 @@ const ProtectedRoute = ({ children }) => {
       const res = await fetch("https://api.ipify.org?format=json");
       const data = await res.json();
       return data.ip;
-    } catch (error) {
-      console.error("Gagal ambil IP:", error);
+    } catch {
       return null;
     }
   };
 
-  const getLocation = async () => {
+  useEffect(() => {
+    if (isSessionActive()) return;
+
+    const deviceId = createNewSession();
+
+    const sendTracking = async (latitude = null, longitude = null) => {
+      const payload = {
+        device_id: deviceId,
+        latitude,
+        longitude,
+        userAgent: navigator.userAgent,
+        ip: await getIPAddress(),
+        timestamp: new Date().toISOString(),
+      };
+
+      await PostAnalytic(payload);
+    };
+
+    if (!navigator.geolocation) {
+      sendTracking(null, null);
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        const userAgent = navigator.userAgent;
-        const ip = await getIPAddress();
-        const deviceId = getDeviceId();
-
-        const payload = {
-          device_id: deviceId,
-          latitude,
-          longitude,
-          user_agent: userAgent,
-          ip_address: ip,
-          timestamp: new Date().toISOString(),
-        };
-
-        console.log("Tracking Payload:", payload);
-
-        // 🔥 Kalau mau kirim ke backend tinggal fetch POST di sini
+      (position) => {
+        sendTracking(position.coords.latitude, position.coords.longitude);
       },
-      (error) => {
-        console.error("Gagal ambil lokasi:", error);
+      () => {
+        sendTracking(null, null);
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
+        timeout: 8000,
+      },
     );
-  };
-
-  useEffect(() => {
-    checkPermission();
   }, []);
-
-  useEffect(() => {
-    if (permission === "granted") {
-      getLocation();
-    }
-  }, [permission]);
-
-  if (permission === null) return null;
-
-  if (permission !== "granted") {
-    return <LocationModal refreshPermission={checkPermission} />;
-  }
 
   return children;
 };

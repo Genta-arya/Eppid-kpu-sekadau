@@ -75,7 +75,7 @@ const ModalMaklumat = () => {
               src={maklumatImage}
               alt="Maklumat"
               onClick={() => window.open(maklumatImage, "_blank")}
-              className="w-96 cursor-pointer rounded-xl object-cover"
+              className="w-96 lg:w-[550px]  cursor-pointer rounded-xl object-cover"
             />
           </motion.div>
         </motion.div>

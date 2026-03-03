@@ -42,3 +42,10 @@ export const Icon = [
     iconLink: "https://sekadaukabppid.kpu.go.id/img/8_panduan_eppid.png",
   },
 ];
+
+const type = "local";
+
+export const Api_Base_URL =
+  type === "local"
+    ? "http://localhost:8080/api/"
+    : "https://sekadaukabppid.kpu.go.id/api";

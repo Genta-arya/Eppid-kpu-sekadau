@@ -18,7 +18,7 @@ const menuItems = [
   {
     title: "Cek Status Permohonan & Keberatan Informasi",
     icon: <ClipboardList size={28} />,
-    link: "/#",
+    link: "/ticket",
   },
   {
     title: "Daftar Informasi Publik Online",
