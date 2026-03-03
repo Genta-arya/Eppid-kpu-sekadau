@@ -43,9 +43,10 @@ export const Icon = [
   },
 ];
 
-const type = "local";
+const type = "production";
+// const type = "local";
 
 export const Api_Base_URL =
   type === "local"
     ? "http://localhost:8080/api/"
-    : "https://sekadaukabppid.kpu.go.id/api";
+    : "https://server-ppid.vercel.app/api";
