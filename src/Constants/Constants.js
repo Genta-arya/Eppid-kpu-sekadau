@@ -48,5 +48,5 @@ const type = "production";
 
 export const Api_Base_URL =
   type === "local"
-    ? "http://localhost:8080/api/"
+    ? "http://localhost:8080/api"
     : "https://server-ppid.vercel.app/api";
