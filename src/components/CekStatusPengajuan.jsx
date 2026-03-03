@@ -5,6 +5,7 @@ import { Search, FolderX } from "lucide-react";
 import Stepers from "./Steper";
 import { toast } from "sonner";
 import { CekStatus } from "../Service/Api/Form.api";
+import { Api_Base_URL } from "../Constants/Constants";
 
 const CekStatusPengajuan = () => {
   const [searchParams] = useSearchParams();
@@ -162,7 +163,7 @@ const CekStatusPengajuan = () => {
                         <div className="mt-6">
                           <p className="mb-2 font-bold text-sm text-center mt-8">Dokumen Pelengkap Permohonan</p>
                           <a
-                            href={`http://localhost:8080/api/form/file/download?id=${formData.ticketNumber}`}
+                            href={`${Api_Base_URL}/form/file/download?id=${formData.ticketNumber}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full block text-center bg-[#9E1C1C] text-white px-5 py-3 rounded-lg hover:bg-red-800 transition font-bold"
