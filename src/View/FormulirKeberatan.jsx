@@ -9,6 +9,7 @@ import { PostForm } from "../Service/Api/Form.api";
 import { PostToDrive } from "../Service/Api/GoogleDrive.api";
 import Loading from "../components/Loading";
 import { useNavigate } from "react-router-dom";
+import Joyride from "react-joyride";
 
 const FormulirKeberatan = () => {
   const [agree, setAgree] = useState(false);
@@ -16,9 +17,32 @@ const FormulirKeberatan = () => {
   const [modalHelpOpen, setModalHelpOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const formRef = useRef(null);
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [runGuide, setRunGuide] = useState(false);
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    const deviceData = localStorage.getItem("device_data");
+
+    if (deviceData) {
+      const { deviceId } = JSON.parse(deviceData);
+
+      const savedGuide = localStorage.getItem("guide_form_keberatan");
+
+      // jika belum pernah ada
+      if (!savedGuide) {
+        setRunGuide(true);
+        localStorage.setItem("guide_form_keberatan", deviceId);
+      }
+
+      // jika device berbeda
+      else if (savedGuide !== deviceId) {
+        setRunGuide(true);
+        localStorage.setItem("guide_form_keberatan", deviceId);
+      }
+
+      // jika device sama → tidak lakukan apa-apa
+    }
 
     const savedData = localStorage.getItem("formIdentity");
 
@@ -35,6 +59,30 @@ const navigate = useNavigate();
       setSaveIdentity(true);
     }
   }, []);
+  const steps = [
+    {
+      target: ".guide-jenis",
+      content: "Pilih jenis pemohon sesuai status Anda.",
+      placement: "bottom",
+      disableBeacon: true,
+    },
+    {
+      target: ".guide-identitas",
+      content: "Isi identitas pemohon dengan lengkap dan benar.",
+    },
+    {
+      target: ".guide-rincian",
+      content: "Jelaskan informasi yang Anda keberatkan secara rinci.",
+    },
+    {
+      target: ".guide-upload",
+      content: "Upload dokumen pendukung jika ada (opsional).",
+    },
+    {
+      target: ".guide-submit",
+      content: "Klik tombol ini untuk mengirim formulir keberatan.",
+    },
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -209,6 +257,22 @@ const navigate = useNavigate();
         />
       </Helmet>
 
+      <Joyride
+        steps={steps}
+        run={runGuide}
+        continuous
+        showSkipButton
+        scrollToFirstStep
+        spotlightPadding={10}
+        scrollOffset={100}
+        styles={{
+          options: {
+            primaryColor: "#991b1b",
+            zIndex: 9999,
+          },
+        }}
+      />
+
       <Container>
         <Navigation navigate={() => {}} text={"Formulir Pengajuan Keberatan"} />
 
@@ -224,10 +288,10 @@ const navigate = useNavigate();
             </h2>
 
             {/* Jenis Pemohon */}
-            <div className="mb-6">
+            <div className="mb-6 guide-jenis">
               <label className="font-semibold block mb-2">Jenis Pemohon</label>
               <div className="flex lg:flex-row flex-col gap-6 lg:items-center text-sm">
-                <label>
+                <label className="flex items-center gap-2">
                   <input
                     type="radio"
                     name="jenisPemohon"
@@ -237,7 +301,7 @@ const navigate = useNavigate();
                   Perorangan
                 </label>
 
-                <label>
+                <label className="flex items-center gap-2">
                   <input
                     type="radio"
                     name="jenisPemohon"
@@ -246,7 +310,7 @@ const navigate = useNavigate();
                   Kelompok Orang
                 </label>
 
-                <label>
+                <label className="flex items-center gap-2">
                   <input type="radio" name="jenisPemohon" value="BADAN_HUKUM" />
                   Badan Hukum
                 </label>
@@ -254,7 +318,7 @@ const navigate = useNavigate();
             </div>
 
             {/* Input Grid */}
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <div className="grid md:grid-cols-2 gap-4 mb-4 guide-identitas">
               <input
                 type="text"
                 name="nama"
@@ -307,22 +371,21 @@ const navigate = useNavigate();
               </label>
 
               <div className="grid md:grid-cols-2 gap-4 text-sm">
-                <label>
+                <label className="flex items-center gap-2">
                   <input type="radio" name="identitas" value="KTP" required />
                   KTP
                 </label>
 
-                <label>
+                <label className="flex items-center gap-2">
                   <input type="radio" name="identitas" value="SIM" />
                   SIM
                 </label>
-
-                <label>
+                <label className="flex items-center gap-2">
                   <input type="radio" name="identitas" value="PASPOR" />
                   Paspor
                 </label>
 
-                <label>
+                <label className="flex items-center gap-2">
                   <input type="radio" name="identitas" value="SURAT_KUASA" />
                   Surat Kuasa
                 </label>
@@ -338,7 +401,7 @@ const navigate = useNavigate();
             </div>
             <textarea
               name="rincianInformasi"
-              className="input mb-4"
+              className="input mb-4 guide-rincian"
               placeholder="Rincian Informasi yang Diberatkan"
               rows="3"
               required
@@ -352,7 +415,7 @@ const navigate = useNavigate();
               required
             />
 
-            <div className="mb-6">
+            <div className="mb-6 guide-upload">
               <label className="font-semibold block mb-2">
                 Upload Dokumen Pelengkap Permohonan{" "}
                 <span className="text-red-500">(opsional)</span>
@@ -397,7 +460,7 @@ const navigate = useNavigate();
             <div className="flex flex-col items-center">
               <button
                 type="submit"
-                className="w-full bg-red-800 hover:bg-red-900 text-white py-2 font-bold rounded transition"
+                className="w-full bg-red-800 hover:bg-red-900 text-white py-2 font-bold rounded guide-submit"
               >
                 Simpan
               </button>

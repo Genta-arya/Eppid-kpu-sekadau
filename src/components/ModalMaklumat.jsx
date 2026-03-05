@@ -27,6 +27,15 @@ const modalVariant = {
 
 const ModalMaklumat = () => {
   const [isOpen, setIsOpen] = useState(true);
+  useEffect(() => {
+    const guideDone = localStorage.getItem("guideDone");
+
+    if (!guideDone) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+    }
+  }, []);
 
   // 🔒 Lock scroll background
   useEffect(() => {

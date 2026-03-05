@@ -112,7 +112,18 @@ const Navbar = () => {
               >
                 Regulasi
               </Link>
-              <li className="hover:text-gray-300 cursor-pointer">Cek Status</li>
+         <NavLink
+                to="/ticket"
+                className={({ isActive }) =>
+                  `flex items-center gap-1 pb-1 transition ${
+                    isActive
+                      ? "text-yellow-500 border-b-2 border-yellow-500"
+                      : "hover:text-gray-300"
+                  }`
+                }
+              >
+                Cek Status
+              </NavLink>
             </ul>
 
             {/* Mobile Button */}
@@ -267,7 +278,18 @@ const Navbar = () => {
                       visible: { opacity: 1, y: 0 },
                     }}
                   >
-                    Cek Status
+                    <NavLink
+                      to="/ticket"
+                      className={({ isActive }) =>
+                        `flex items-center gap-1 pb-1 transition ${
+                          isActive
+                            ? "text-yellow-500  border-yellow-500"
+                            : "hover:text-gray-300"
+                        }`
+                      }
+                    >
+                      Cek Status
+                    </NavLink>
                   </motion.div>
                 </motion.div>
               </motion.div>

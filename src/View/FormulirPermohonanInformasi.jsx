@@ -9,6 +9,7 @@ import { PostForm } from "../Service/Api/Form.api";
 import { PostToDrive } from "../Service/Api/GoogleDrive.api";
 import Loading from "../components/Loading";
 import { useNavigate } from "react-router-dom";
+import Joyride from "react-joyride";
 
 const FormulirPermohonanInformasi = () => {
   const [agree, setAgree] = useState(false);
@@ -17,8 +18,31 @@ const FormulirPermohonanInformasi = () => {
   const [loading, setLoading] = useState(false);
   const formRef = useRef(null);
   const navigate = useNavigate();
+  const [runGuide, setRunGuide] = useState(false);
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    const deviceData = localStorage.getItem("device_data");
+
+    if (deviceData) {
+      const { deviceId } = JSON.parse(deviceData);
+
+      const savedGuide = localStorage.getItem("guide_form_informasi");
+
+      // jika belum pernah ada
+      if (!savedGuide) {
+        setRunGuide(true);
+        localStorage.setItem("guide_form_informasi", deviceId);
+      }
+
+      // jika device berbeda
+      else if (savedGuide !== deviceId) {
+        setRunGuide(true);
+        localStorage.setItem("guide_form_informasi", deviceId);
+      }
+
+      // jika device sama → tidak lakukan apa-apa
+    }
 
     const savedData = localStorage.getItem("formIdentity");
 
@@ -35,6 +59,30 @@ const FormulirPermohonanInformasi = () => {
       setSaveIdentity(true);
     }
   }, []);
+  const steps = [
+    {
+      target: ".guide-jenis",
+      content: "Pilih jenis pemohon sesuai status Anda.",
+      placement: "bottom",
+      disableBeacon: true,
+    },
+    {
+      target: ".guide-identitas",
+      content: "Isi identitas pemohon dengan lengkap dan benar.",
+    },
+    {
+      target: ".guide-rincian",
+      content: "Jelaskan informasi yang Anda keberatkan secara rinci.",
+    },
+    {
+      target: ".guide-upload",
+      content: "Upload dokumen pendukung jika ada (opsional).",
+    },
+    {
+      target: ".guide-submit",
+      content: "Klik tombol ini untuk mengirim formulir permohonan informasi.",
+    },
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -211,6 +259,22 @@ const FormulirPermohonanInformasi = () => {
         />
       </Helmet>
 
+      <Joyride
+        steps={steps}
+        run={runGuide}
+        continuous
+        showSkipButton
+        scrollToFirstStep
+        spotlightPadding={10}
+        scrollOffset={100}
+        styles={{
+          options: {
+            primaryColor: "#991b1b",
+            zIndex: 9999,
+          },
+        }}
+      />
+
       <Container>
         <Navigation
           navigate={() => {}}
@@ -229,10 +293,10 @@ const FormulirPermohonanInformasi = () => {
             </h2>
 
             {/* Jenis Pemohon */}
-            <div className="mb-6">
+            <div className="mb-6 guide-jenis">
               <label className="font-semibold block mb-2">Jenis Pemohon</label>
               <div className="flex lg:flex-row flex-col gap-6 lg:items-center text-sm">
-                <label>
+                <label className="flex items-center gap-2">
                   <input
                     type="radio"
                     name="jenisPemohon"
@@ -241,8 +305,7 @@ const FormulirPermohonanInformasi = () => {
                   />
                   Perorangan
                 </label>
-
-                <label>
+                <label className="flex items-center gap-2">
                   <input
                     type="radio"
                     name="jenisPemohon"
@@ -251,7 +314,7 @@ const FormulirPermohonanInformasi = () => {
                   Kelompok Orang
                 </label>
 
-                <label>
+                <label className="flex items-center gap-2">
                   <input type="radio" name="jenisPemohon" value="BADAN_HUKUM" />
                   Badan Hukum
                 </label>
@@ -259,7 +322,7 @@ const FormulirPermohonanInformasi = () => {
             </div>
 
             {/* Input Grid */}
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <div className="grid md:grid-cols-2 gap-4 mb-4 guide-identitas">
               <input
                 type="text"
                 name="nama"
@@ -312,12 +375,12 @@ const FormulirPermohonanInformasi = () => {
               </label>
 
               <div className="grid md:grid-cols-2 gap-2 text-sm">
-                <label>
+                <label className="flex items-center gap-2">
                   <input type="radio" name="identitas" value="KTP" required />
                   KTP
                 </label>
 
-                <label className="">
+                <label className="flex items-center gap-2">
                   <input
                     type="radio"
                     className=""
@@ -326,13 +389,12 @@ const FormulirPermohonanInformasi = () => {
                   />
                   SIM
                 </label>
-
-                <label>
+                <label className="flex items-center gap-2">
                   <input type="radio" name="identitas" value="PASPOR" />
                   Paspor
                 </label>
 
-                <label>
+                <label className="flex items-center gap-2">
                   <input type="radio" name="identitas" value="SURAT_KUASA" />
                   Surat Kuasa
                 </label>
@@ -362,7 +424,7 @@ const FormulirPermohonanInformasi = () => {
               required
             />
 
-            <div className="mb-6">
+            <div className="mb-6 guide-upload">
               <label className="font-semibold block mb-2">
                 Upload Dokumen Pelengkap Permohonan{" "}
                 <span className="text-red-500">(opsional)</span>
@@ -407,7 +469,7 @@ const FormulirPermohonanInformasi = () => {
             <div className="flex flex-col items-center">
               <button
                 type="submit"
-                className="w-full bg-red-800 hover:bg-red-900 text-white py-2 font-bold rounded transition"
+                className="w-full bg-red-800 hover:bg-red-900 text-white py-2 font-bold rounded guide-submit"
               >
                 Simpan
               </button>

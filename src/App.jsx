@@ -33,7 +33,7 @@ const App = () => {
       <Header />
       <main className="flex-grow w-full">
         <div className="  pt-10">
-          <Menu />
+          <Menu  />
           <div className="my-20">
             <ClassifikasiTeknis />
           </div>
