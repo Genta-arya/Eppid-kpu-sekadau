@@ -67,7 +67,7 @@ const Menu = () => {
     if (status === "finished" || status === "skipped") {
       localStorage.setItem("guideDone", "true");
       setRunGuide(false);
-      scrollTo(0, 0);
+      scrollTo(0, 0); 
     }
   };
   const steps = [

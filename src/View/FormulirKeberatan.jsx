@@ -79,6 +79,11 @@ const FormulirKeberatan = () => {
       content: "Upload dokumen pendukung jika ada (opsional).",
     },
     {
+      target: ".guide-info",
+      content:
+        "Pilih cara Anda memperoleh tentang informasi yang diberkatkan yang akan kami perbaiki.",
+    },
+    {
       target: ".guide-submit",
       content: "Klik tombol ini untuk mengirim formulir keberatan.",
     },
@@ -107,6 +112,12 @@ const FormulirKeberatan = () => {
       // 🔥 VALIDASI RADIO JENIS PEMOHON
       if (!formData.get("jenisPemohon")) {
         toast.error("Pilih jenis pemohon terlebih dahulu.");
+        return;
+      }
+
+      // validasi radio cara memperoleh informasi
+      if (!formData.get("caraMemperoleh")) {
+        toast.error("Pilih cara memperoleh informasi terlebih dahulu.");
         return;
       }
 
@@ -197,6 +208,7 @@ const FormulirKeberatan = () => {
         pekerjaan: formData.get("pekerjaan"),
         alamat: formData.get("alamat"),
         jenisIdentitas: formData.get("identitas"),
+        caraMemperoleh: formData.get("caraMemperoleh"),
         nomorIdentitas: formData.get("nomorIdentitas"),
         rincianInformasi: formData.get("rincianInformasi"),
         tujuanPenggunaan: formData.get("tujuanPenggunaan"),
@@ -414,6 +426,37 @@ const FormulirKeberatan = () => {
               rows="3"
               required
             />
+
+            <div className="mb-6 guide-info">
+              <label className="font-semibold block mb-2">
+                Cara memperoleh informasi
+              </label>
+              <div className="flex lg:flex-row flex-col gap-6 lg:items-center text-sm">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="caraMemperoleh"
+                    value="EMAIL"
+                    required
+                  />
+                  Email
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input type="radio" name="caraMemperoleh" value="WHATSAPP" />
+                  WhatsApp
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="caraMemperoleh"
+                    value="AMBIL_DI_KANTOR"
+                  />
+                  Ambil di Kantor
+                </label>
+              </div>
+            </div>
 
             <div className="mb-6 guide-upload">
               <label className="font-semibold block mb-2">
