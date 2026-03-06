@@ -75,14 +75,15 @@ const FormulirPermohonanInformasi = () => {
       content: "Jelaskan informasi yang Anda keberatkan secara rinci.",
     },
     {
-      target: ".guide-upload",
-      content: "Upload dokumen pendukung jika ada (opsional).",
-    },
-    {
       target: ".guide-info",
       content:
         "Pilih cara Anda memperoleh informasi yang akan kami kirimkan kepada Anda.",
     },
+    {
+      target: ".guide-upload",
+      content: "Upload dokumen pendukung jika ada (opsional).",
+    },
+
     {
       target: ".guide-submit",
       content: "Klik tombol ini untuk mengirim formulir permohonan informasi.",
