@@ -187,7 +187,7 @@ const CekStatusPengajuan = () => {
                     </div>
 
                     {/* STEPPER STATUS */}
-                    <Stepers data={formData?.status} />
+                    <Stepers fulldata={formData} data={formData?.status} />
                   </div>
                 )}
               </>
