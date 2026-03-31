@@ -26,6 +26,7 @@ const Stepers = ({ data, fulldata }) => {
     }
   };
 
+
   const url = `https://api.whatsapp.com/send?phone=${phoneNumber}`;
 
   if (data === "DITOLAK") {
@@ -61,6 +62,7 @@ const Stepers = ({ data, fulldata }) => {
       </div>
     );
   }
+  
 
   const getInitialStep = () => {
     if (!data) return 1;
@@ -96,12 +98,21 @@ const Stepers = ({ data, fulldata }) => {
                 <span className="font-bold underline">
                   {mapCaraMemperoleh(rawCaraMemperoleh)}
                 </span>
-                .
+                
               </p>
               {catatan && (
                 <p className="text-[11px] text-green-700 mt-2 italic">
                   Catatan: {catatan}
                 </p>
+              )}
+
+              {fulldata.buktiTerima && (
+                <div className="mt-6">
+                
+                  <a href={fulldata.buktiTerima} target="_blank" rel="noopener noreferrer" className="text-white text-xs bg-red-700 hover:bg-red-600 transition px-5 py-2 rounded-lg font-bold ">
+                    Lihat Bukti Terima
+                  </a>
+                </div>
               )}
             </div>
           )}

@@ -44,7 +44,7 @@ export const Icon = [
 ];
 
 // const type = "production";
-const type = "locals";
+const type = "local";
 
 export const Api_Base_URL =
   type === "local"
