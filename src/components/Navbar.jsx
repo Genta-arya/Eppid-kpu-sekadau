@@ -42,9 +42,7 @@ const Navbar = () => {
                 <p className="font-semibold -mt-1 uppercase">
                   Kabupaten Sekadau
                 </p>
-                <p className="text-[10px] font-semibold italic">
-                  Beta Versi 1.0
-                </p>
+               
               </div>
             </div>
 

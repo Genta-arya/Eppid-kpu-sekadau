@@ -10,3 +10,13 @@ export const PostAnalytic = async (data) => {
     throw error;
   }
 };
+
+
+export const GetAnalytic = async () => {
+  try {
+    const response = await axiosInstance.get("/analytic/all");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

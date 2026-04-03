@@ -333,46 +333,23 @@ const FormulirKeberatan = () => {
 
             {/* Input Grid */}
             <div className="grid md:grid-cols-2 gap-4 mb-4 guide-identitas">
-              <input
-                type="text"
-                name="nama"
-                placeholder="Nama Pemohon Sesuai KTP"
-                className="input"
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                className="input"
-                required
-              />
-              <input
-                type="text"
-                name="telepon"
-                placeholder="No. Telepon / HP"
-                className="input"
-                required
-              />
-              <input
-                type="text"
-                name="pendidikan"
-                placeholder="Pendidikan"
-                className="input"
-                required
-              />
-              <input
-                type="text"
-                name="pekerjaan"
-                placeholder="Pekerjaan"
-                className="input"
-                required
-              />
+              {["nama", "email", "telepon", "pendidikan", "pekerjaan"].map(
+                (n) => (
+                  <input
+                    key={n}
+                    name={n}
+                    maxLength="180"
+                    placeholder={n.toUpperCase()}
+                    className="input"
+                    required
+                  />
+                ),
+              )}
             </div>
-
             <textarea
               name="alamat"
-              placeholder="Alamat Pemohon"
+              maxLength="180"
+              placeholder="ALAMAT"
               className="input mb-6"
               rows="2"
               required
@@ -418,6 +395,7 @@ const FormulirKeberatan = () => {
               className="input mb-4 guide-rincian"
               placeholder="Rincian Informasi yang Diberatkan"
               rows="3"
+              maxLength={180}
               required
             />
 
@@ -426,6 +404,7 @@ const FormulirKeberatan = () => {
               className="input mb-6"
               placeholder="Tujuan Penggunaan"
               rows="3"
+              maxLength={180}
               required
             />
 

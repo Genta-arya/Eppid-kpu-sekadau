@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import Container from "./Container";
 import { useSearchParams } from "react-router-dom";
-import { Search, FolderX } from "lucide-react";
-import Stepers from "./Steper";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, FolderX, FileText, Calendar, Mail, User, Download, AlertCircle, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+
+import Container from "./Container";
+import Stepers from "./Steper";
 import { CekStatus } from "../Service/Api/Form.api";
 import { Api_Base_URL } from "../Constants/Constants";
 
 const CekStatusPengajuan = () => {
   const [searchParams] = useSearchParams();
-
   const initialId = searchParams.get("id") || "";
   const [ticketId, setTicketId] = useState(initialId);
   const [loading, setLoading] = useState(false);
@@ -18,12 +19,11 @@ const CekStatusPengajuan = () => {
   const [formData, setFormData] = useState(null);
 
   const cekStatus = async (id) => {
+    if (!id.trim()) return;
     try {
       setLoading(true);
       setNotFound(false);
-
       const response = await CekStatus(id);
-
       setFormData(response.data);
       setSubmitted(true);
     } catch (error) {
@@ -31,172 +31,162 @@ const CekStatusPengajuan = () => {
         setNotFound(true);
         setSubmitted(true);
       } else {
-        toast.error("Terjadi kesalahan saat mengambil data.");
+        toast.error("Gagal mengambil data. Silakan periksa koneksi Anda.");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!ticketId.trim()) return;
-    await cekStatus(ticketId);
+    cekStatus(ticketId);
   };
 
-  // 🔥 Auto fetch kalau masuk dari email (?id=)
   useEffect(() => {
-    if (initialId) {
-      cekStatus(initialId);
-    }
-  }, []); // eslint-disable-line
+    if (initialId) cekStatus(initialId);
+  }, [initialId]);
 
   return (
     <Container>
-      <div className="min-h-[70vh] flex items-center justify-center py-24 px-4">
-        <div className="w-full lg:max-w-4xl bg-white shadow-xl rounded-2xl overflow-hidden">
-          {/* Header */}
-          <div className="bg-[#9E1C1C] text-white p-6 text-center">
-            <h1 className="text-xl font-semibold">Cek Status Pengajuan PPID</h1>
-          </div>
+      <div className="min-h-screen bg-slate-50/50 py-20 px-4">
+        <div className="max-w-4xl mx-auto space-y-8">
+          
+          {/* SEARCH CARD */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden"
+          >
+            <div className="bg-[#9E1C1C] p-8 text-white text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+              <h1 className="text-2xl font-black uppercase tracking-tight">Cek Proses Permohonan</h1>
+              <p className="text-red-100 text-sm mt-1 opacity-80 font-medium">Masukkan nomor registrasi untuk melihat progres data Anda</p>
+            </div>
 
-          <div className="p-8">
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-sm text-gray-600 block mb-1">
-                  Nomor Registrasi
-                </label>
+            <form onSubmit={handleSubmit} className="p-8">
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#9E1C1C] transition-colors" size={20} />
                 <input
                   type="text"
                   value={ticketId}
                   onChange={(e) => setTicketId(e.target.value)}
-                  placeholder="Contoh: INF-20250303-0001"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#9E1C1C] focus:border-[#9E1C1C] transition"
+                  placeholder="Contoh: INF-20260403-0001"
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white focus:border-[#9E1C1C] focus:outline-none transition-all font-semibold text-slate-700"
                 />
               </div>
-
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#9E1C1C] hover:bg-red-800 text-white py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70"
+                className="w-full mt-4 bg-[#9E1C1C] hover:bg-red-800 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all shadow-lg shadow-red-900/20 active:scale-[0.98] disabled:opacity-50"
               >
-                {loading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Memuat...
-                  </>
-                ) : (
-                  <>
-                    <Search size={18} />
-                    Cek Status
-                  </>
-                )}
+                {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : "PERIKSA STATUS SEKARANG"}
               </button>
             </form>
+          </motion.div>
 
-            {/* RESULT SECTION */}
+          {/* RESULT SECTION */}
+          <AnimatePresence mode="wait">
             {submitted && !loading && (
-              <>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="space-y-6"
+              >
                 {notFound ? (
-                  <div className="mt-12 flex flex-col items-center text-center py-12">
-                    <FolderX size={64} className="text-[#9E1C1C] mb-4" />
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      Nomor Registrasi Tidak Terdaftar
-                    </h2>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Pastikan nomor registrasi yang Anda masukkan sudah benar.
+                  <div className="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-slate-200">
+                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <FolderX size={40} className="text-[#9E1C1C]" />
+                    </div>
+                    <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">Data Tidak Ditemukan</h2>
+                    <p className="text-slate-500 mt-2 max-w-xs mx-auto text-sm leading-relaxed">
+                      Nomor registrasi <span className="font-bold text-red-700">{ticketId}</span> tidak terdaftar di sistem kami.
                     </p>
                   </div>
                 ) : (
-                  <div className="mt-10 space-y-8">
-                    {/* DETAIL CARD */}
-                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 shadow-sm">
-                      <div className="text-center mb-6">
-                        <p className="text-sm text-gray-500">
-                          Nomor Registrasi
-                        </p>
-                        <p className="text-lg font-bold text-[#9E1C1C]">
-                          {formData?.ticketNumber}
-                        </p>
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-6 text-sm">
-                        <div>
-                          <p className="text-gray-500">Nama Pemohon</p>
-                          <p className="font-medium text-gray-800">
-                            {formData?.nama}
-                          </p>
+                  <div className="space-y-6">
+                    {/* INFO GRID */}
+                    <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100">
+                      <div className="flex flex-col md:flex-row justify-between items-center mb-8 pb-6 border-b border-slate-50 gap-4">
+                        <div className="text-center md:text-left">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ID Tiket Resmi</span>
+                          <h3 className="text-2xl font-black text-[#9E1C1C] leading-none mt-1">{formData?.ticketNumber}</h3>
                         </div>
-
-                        <div>
-                          <p className="text-gray-500">Jenis Permohonan</p>
-                          <p className="font-medium text-gray-800">
-                            {formData?.type === "KEBERATAN"
-                              ? "Pengajuan Permohonan Keberatan"
-                              : "Permohonan Informasi"}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-gray-500">Email</p>
-                          <p className="font-medium text-gray-800">
-                            {formData?.email}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-gray-500">Tanggal Pengajuan</p>
-                          <p className="font-medium text-gray-800">
-                            {new Date(formData?.createdAt).toLocaleDateString(
-                              "id-ID",
-                              {
-                                day: "2-digit",
-                                month: "long",
-                                year: "numeric",
-                              },
-                            )}
-                          </p>
+                        <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${formData?.status === 'SELESAI' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                          Status: {formData?.status}
                         </div>
                       </div>
+
+                      <div className="grid md:grid-cols-2 gap-8">
+                        <InfoItem icon={<User size={16}/>} label="Nama Pemohon" value={formData?.nama} />
+                        <InfoItem icon={<FileText size={16}/>} label="Jenis Pengajuan" value={formData?.type === "KEBERATAN" ? "Pengajuan Keberatan" : "Permohonan Informasi"} />
+                        <InfoItem icon={<Mail size={16}/>} label="Email Terdaftar" value={formData?.email} />
+                        <InfoItem icon={<Calendar size={16}/>} label="Tanggal Masuk" value={new Date(formData?.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })} />
+                      </div>
+
                       {formData?.dokumenUrl && (
-                        <div className="mt-6">
-                          <p className="mb-2 font-bold text-sm text-center mt-8">Dokumen Pelengkap Permohonan</p>
-                          <a
-                            href={`${Api_Base_URL}/form/file/download?id=${formData.ticketNumber}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full block text-center bg-[#9E1C1C] text-white px-5 py-3 rounded-lg hover:bg-red-800 transition font-bold"
-                          >
-                            Download
-                          </a>
+                        <div className="mt-10 p-6 bg-slate-900 rounded-2xl text-white relative overflow-hidden group">
+                           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <div className="p-3 bg-red-600 rounded-xl">
+                                  <Download size={20} />
+                                </div>
+                                <div>
+                                  <p className="text-xs font-bold text-red-400 uppercase tracking-tighter">Dokumen Terlampir</p>
+                                  <p className="text-sm font-medium text-slate-300">File Pelengkap Permohonan</p>
+                                </div>
+                              </div>
+                              <a
+                                href={`${Api_Base_URL}/form/file/download?id=${formData.ticketNumber}`}
+                                target="_blank" rel="noopener noreferrer"
+                                className="bg-white text-slate-900 px-6 py-3 rounded-xl font-black text-xs hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
+                              >
+                                UNDUH DOKUMEN <ArrowRight size={14} />
+                              </a>
+                           </div>
+                           <FileText className="absolute right-0 bottom-0 text-white/5 -mb-4 -mr-4" size={100} />
                         </div>
                       )}
 
-                      {/* Catatan Admin */}
-                      {formData?.catatanAdmin && (
-                        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                          <p className="text-sm font-semibold text-[#9E1C1C]">
-                            Catatan Admin
-                          </p>
-                          <p className="text-sm text-gray-700 mt-1">
-                            {formData?.catatanAdmin}
-                          </p>
+                      {formData?.catatanAdmin && formData?.status !== "DITOLAK" && (
+                        <div className="mt-6 flex gap-4 p-5 bg-orange-50 rounded-2xl border border-orange-100">
+                          <AlertCircle className="text-orange-600 shrink-0" size={20} />
+                          <div>
+                            <p className="text-[10px] font-black text-orange-700 uppercase tracking-widest mb-1">Catatan dari Admin</p>
+                            <p className="text-sm text-orange-900/80 leading-relaxed font-medium">{formData?.catatanAdmin}</p>
+                          </div>
                         </div>
                       )}
                     </div>
 
-                    {/* STEPPER STATUS */}
-                    <Stepers fulldata={formData} data={formData?.status} />
+                    {/* PROGRESS CARD */}
+                    <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100">
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-10 text-center">Timeline Progress Pengajuan</h3>
+                      <Stepers fulldata={formData} data={formData?.status} />
+                    </div>
                   </div>
                 )}
-              </>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
         </div>
       </div>
     </Container>
   );
 };
+
+// HELPER COMPONENT
+const InfoItem = ({ icon, label, value }) => (
+  <div className="flex items-start gap-4 p-2">
+    <div className="p-2.5 bg-slate-50 text-slate-400 rounded-xl group-hover:text-[#9E1C1C] transition-colors">
+      {icon}
+    </div>
+    <div>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">{label}</p>
+      <p className="text-sm font-bold text-slate-700 leading-tight">{value || "-"}</p>
+    </div>
+  </div>
+);
 
 export default CekStatusPengajuan;

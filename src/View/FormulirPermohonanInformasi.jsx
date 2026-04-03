@@ -341,6 +341,7 @@ const FormulirPermohonanInformasi = () => {
                 name="nama"
                 placeholder="Nama Pemohon Sesuai KTP"
                 className="input"
+                maxLength={180}
                 required
               />
               <input
@@ -348,6 +349,7 @@ const FormulirPermohonanInformasi = () => {
                 name="email"
                 placeholder="Email"
                 className="input"
+                 maxLength={180}
                 required
               />
               <input
@@ -355,6 +357,7 @@ const FormulirPermohonanInformasi = () => {
                 name="telepon"
                 placeholder="No. Telepon / HP"
                 className="input"
+                 maxLength={180}
                 required
               />
               <input
@@ -362,6 +365,7 @@ const FormulirPermohonanInformasi = () => {
                 name="pendidikan"
                 placeholder="Pendidikan"
                 className="input"
+                 maxLength={180}
                 required
               />
               <input
@@ -369,6 +373,7 @@ const FormulirPermohonanInformasi = () => {
                 name="pekerjaan"
                 placeholder="Pekerjaan"
                 className="input"
+                 maxLength={180}
                 required
               />
             </div>
@@ -377,6 +382,7 @@ const FormulirPermohonanInformasi = () => {
               name="alamat"
               placeholder="Alamat Pemohon"
               className="input mb-6"
+               maxLength={180}
               rows="2"
               required
             />
@@ -419,6 +425,7 @@ const FormulirPermohonanInformasi = () => {
                 placeholder="Nomor Identitas"
                 className="input mt-3"
                 required
+                 maxLength={180}
               />
             </div>
             <textarea
@@ -427,6 +434,7 @@ const FormulirPermohonanInformasi = () => {
               placeholder="Rincian Informasi yang Diberatkan"
               rows="3"
               required
+               maxLength={180}
             />
 
             <textarea
@@ -435,6 +443,7 @@ const FormulirPermohonanInformasi = () => {
               placeholder="Tujuan Penggunaan"
               rows="3"
               required
+               maxLength={180}
             />
 
             <div className="mb-6 guide-info">
