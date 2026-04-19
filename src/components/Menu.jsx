@@ -24,7 +24,7 @@ const menuItems = [
   {
     title: "Daftar Informasi Publik Online",
     icon: <Search size={28} />,
-    link: "/https://sekadaukabppid.kpu.go.id/katalog-informasi",
+    link: "https://sekadaukabppid.kpu.go.id/katalog-informasi",
   },
 ];
 
@@ -118,7 +118,14 @@ const Menu = () => {
             {menuItems.map((item, index) => (
               <motion.div
                 key={index}
-                onClick={() => navigate(item.link)}
+               // Cari bagian ini di dalam menuItems.map
+onClick={() => {
+  if (item.link.startsWith("http")) {
+    window.location.href = item.link; // Membuka link eksternal (href)
+  } else {
+    navigate(item.link); // Tetap menggunakan router navigasi internal
+  }
+}}
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
