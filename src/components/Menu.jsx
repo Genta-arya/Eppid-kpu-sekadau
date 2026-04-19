@@ -24,7 +24,7 @@ const menuItems = [
   {
     title: "Daftar Informasi Publik Online",
     icon: <Search size={28} />,
-    link: "/#",
+    link: "/https://sekadaukabppid.kpu.go.id/katalog-informasi",
   },
 ];
 
