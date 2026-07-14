@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-// Menambahkan AlertTriangle untuk ikon Lapor
 import { FileText, Megaphone, ClipboardList, Search, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Joyride from "react-joyride";
@@ -124,62 +123,68 @@ const Menu = () => {
       <Animated direction={"vertical"} distance={30}>
         <div className="flex items-center justify-center py-10">
           <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full lg:px-0 px-2 lg:max-w-5xl">
-            {menuItems.map((item, index) => (
-              <motion.div
-                key={index}
-                onClick={() => {
-                  if (item.link.startsWith("http")) {
-                    window.location.href = item.link;
-                  } else {
-                    navigate(item.link);
-                  }
-                }}
-                variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.97 }}
-                className={`menu-${index} group relative overflow-hidden flex items-center gap-3 px-8 py-5 rounded-full 
-                bg-gradient-to-r from-red-700 to-red-950 
-                text-white font-semibold text-sm
-                shadow-lg cursor-pointer transition-all duration-300`}
-              >
-                {/* LEFT BORDER */}
-                <span className="absolute inset-0 rounded-full pointer-events-none">
-                  <span
-                    className="absolute left-0 top-0 h-full w-full rounded-full border-4 border-orange-400
-                    scale-x-0 origin-left
-                    group-hover:scale-x-100
-                    transition-transform duration-500 ease-out"
-                  />
-                </span>
+            {menuItems.map((item, index) => {
+              // Cek apakah ini item terakhir dan jumlah total item ganjil
+              const isLastAndOdd = index === menuItems.length - 1 && menuItems.length % 2 !== 0;
 
-                {/* RIGHT BORDER */}
-                <span className="absolute inset-0 rounded-full pointer-events-none">
-                  <span
-                    className="absolute right-0 top-0 h-full w-full rounded-full border-4 border-orange-400
-                    scale-x-0 origin-right
-                    group-hover:scale-x-100
-                    transition-transform duration-500 ease-out delay-75"
-                  />
-                </span>
+              return (
+                <motion.div
+                  key={index}
+                  onClick={() => {
+                    if (item.link.startsWith("http")) {
+                      window.location.href = item.link;
+                    } else {
+                      navigate(item.link);
+                    }
+                  }}
+                  variants={itemVariants}
+                  whileHover={{ scale: isLastAndOdd ? 1.02 : 1.05 }} // Sedikit disesuaikan agar hover tombol panjang tidak terlalu distorsi
+                  whileTap={{ scale: 0.98 }}
+                  className={`menu-${index} group relative overflow-hidden flex items-center gap-3 px-8 py-5 rounded-full 
+                  bg-gradient-to-r from-red-700 to-red-950 
+                  text-white font-semibold text-sm
+                  shadow-lg cursor-pointer transition-all duration-300
+                  ${isLastAndOdd ? "md:col-span-2 justify-center" : ""}`} // Membuat menu terakhir mengambil 2 kolom dan kontennya di tengah
+                >
+                  {/* LEFT BORDER */}
+                  <span className="absolute inset-0 rounded-full pointer-events-none">
+                    <span
+                      className="absolute left-0 top-0 h-full w-full rounded-full border-4 border-orange-400
+                      scale-x-0 origin-left
+                      group-hover:scale-x-100
+                      transition-transform duration-500 ease-out"
+                    />
+                  </span>
 
-                {/* Shine */}
-                <span className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
-                  <span
-                    className="absolute -left-1/2 top-0 h-full w-1/2 
-                    bg-gradient-to-r from-transparent via-white/40 to-transparent
-                    skew-x-[-20deg]
-                    translate-x-[-150%]
-                    group-hover:translate-x-[300%]
-                    transition-transform duration-700 ease-out"
-                  />
-                </span>
+                  {/* RIGHT BORDER */}
+                  <span className="absolute inset-0 rounded-full pointer-events-none">
+                    <span
+                      className="absolute right-0 top-0 h-full w-full rounded-full border-4 border-orange-400
+                      scale-x-0 origin-right
+                      group-hover:scale-x-100
+                      transition-transform duration-500 ease-out delay-75"
+                    />
+                  </span>
 
-                <div className="relative z-10 flex items-center gap-3">
-                  <div>{item.icon}</div>
-                  <span>{item.title}</span>
-                </div>
-              </motion.div>
-            ))}
+                  {/* Shine */}
+                  <span className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
+                    <span
+                      className="absolute -left-1/2 top-0 h-full w-1/2 
+                      bg-gradient-to-r from-transparent via-white/40 to-transparent
+                      skew-x-[-20deg]
+                      translate-x-[-150%]
+                      group-hover:translate-x-[300%]
+                      transition-transform duration-700 ease-out"
+                    />
+                  </span>
+
+                  <div className="relative z-10 flex items-center gap-3">
+                    <div>{item.icon}</div>
+                    <span>{item.title}</span>
+                  </div>
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </Animated>
