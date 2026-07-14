@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, Megaphone, ClipboardList, Search } from "lucide-react";
+// Menambahkan AlertTriangle untuk ikon Lapor
+import { FileText, Megaphone, ClipboardList, Search, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Joyride from "react-joyride";
 import Animated from "./Animated";
@@ -25,6 +26,11 @@ const menuItems = [
     title: "Daftar Informasi Publik Online",
     icon: <Search size={28} />,
     link: "https://sekadaukabppid.kpu.go.id/katalog-informasi",
+  },
+  {
+    title: "Lapor",
+    icon: <AlertTriangle size={28} />,
+    link: "https://forms.gle/J4gtr5jbmAgSMyMi7",
   },
 ];
 
@@ -51,10 +57,8 @@ const Menu = () => {
     if (!deviceData) return;
 
     const { deviceId } = JSON.parse(deviceData);
-
     const savedGuide = localStorage.getItem("deviceGuide");
 
-    // jika device belum pernah lihat guide
     if (savedGuide !== deviceId) {
       setRunGuide(true);
       localStorage.setItem("deviceGuide", deviceId);
@@ -67,9 +71,10 @@ const Menu = () => {
     if (status === "finished" || status === "skipped") {
       localStorage.setItem("guideDone", "true");
       setRunGuide(false);
-      scrollTo(0, 0); 
+      window.scrollTo(0, 0); 
     }
   };
+
   const steps = [
     {
       target: ".menu-0",
@@ -87,6 +92,10 @@ const Menu = () => {
     {
       target: ".menu-3",
       content: "Menu ini berisi daftar informasi publik yang tersedia.",
+    },
+    {
+      target: ".menu-4",
+      content: "Gunakan menu ini untuk melaporkan pengaduan atau aspirasi Anda.",
     },
   ];
 
@@ -118,14 +127,13 @@ const Menu = () => {
             {menuItems.map((item, index) => (
               <motion.div
                 key={index}
-               // Cari bagian ini di dalam menuItems.map
-onClick={() => {
-  if (item.link.startsWith("http")) {
-    window.location.href = item.link; // Membuka link eksternal (href)
-  } else {
-    navigate(item.link); // Tetap menggunakan router navigasi internal
-  }
-}}
+                onClick={() => {
+                  if (item.link.startsWith("http")) {
+                    window.location.href = item.link;
+                  } else {
+                    navigate(item.link);
+                  }
+                }}
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
